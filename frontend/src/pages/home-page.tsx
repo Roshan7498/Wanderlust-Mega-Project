@@ -11,8 +11,9 @@ function HomePage() {
   useEffect(() => {
     axios
       .get(import.meta.env.VITE_API_PATH + '/api/posts')
-      .then((response) => {
-        setPosts(response.data);
+.then((response) => {
+  console.log('API Response:', response.data);
+  setPosts(response.data);
       })
       .catch((error) => {
         console.error(error);
