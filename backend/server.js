@@ -30,8 +30,9 @@ app.get('/', (req, res) => {
   res.send('Yay!! Backend of wanderlust prod app is now accessible');
 });
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+app.listen(process.env.PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${process.env.PORT}`);
+
 });
 
 export default app;
