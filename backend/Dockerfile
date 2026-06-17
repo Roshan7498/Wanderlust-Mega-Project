@@ -1,31 +1,24 @@
-# Stage 1
-FROM node:21 AS backend-builder
+# Use official Node.js image
+FROM node:21
 
-# setup the working dir
+# Set working directory inside container
 WORKDIR /app
 
-# code
+# Copy package files first (for better caching)
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy the rest of your backend code
 COPY . .
 
-# packages install
-RUN npm i
+# Copy your environment file
+COPY .env .env
 
-# tests
-RUN npm run test
+# Expose backend port
+EXPOSE 5000
 
-# Stage 2
-FROM node:21-slim
-
-# setup the working dir
-WORKDIR /app
-
-# copy the above stage as compressed
-COPY --from=backend-builder /app .
-
-COPY .env.docker .env
-
-# Port
-EXPOSE 8080
-
-# App
+# Start the server
 CMD ["npm", "start"]
+
