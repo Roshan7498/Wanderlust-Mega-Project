@@ -23,7 +23,7 @@ app.use(compression());
 connectDB();
 
 // Connect to redis
-connectToRedis();
+//connectToRedis();
 
 // API route
 app.use('/api/posts', postsRouter);

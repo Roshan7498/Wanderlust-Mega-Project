@@ -1,13 +1,6 @@
 version: "3.8"
-services:
-  mongodb:
-    container_name: mongo
-    image: mongo:latest
-    volumes:
-      - ./backend/data:/data
-    ports:
-      - "27017:27017"
 
+services:
   backend:
     container_name: backend
     build: ./backend
@@ -16,7 +9,7 @@ services:
     ports:
       - "5000:5000"
     depends_on:
-      - mongodb
+      - redis
 
   frontend:
     container_name: frontend
@@ -28,12 +21,7 @@ services:
 
   redis:
     container_name: redis
+    image: redis:7.0.5-alpine
     restart: unless-stopped
-    image: redis:7.0.5-alpine 
     expose:
-        - 6379
-    depends_on:
-      - mongodb
-
-volumes:
-  data:
+      - "6379"
