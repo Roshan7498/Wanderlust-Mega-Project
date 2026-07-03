@@ -1,24 +1,22 @@
-# Use official Node.js image
-FROM node:21
+# Stage 1 - Install dependencies
+FROM node:22-alpine AS deps
 
-# Set working directory inside container
 WORKDIR /app
 
-# Copy package files first (for better caching)
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+RUN npm ci
 
-# Copy the rest of your backend code
+
+# Stage 2 - Runtime
+FROM node:22-alpine
+
+WORKDIR /app
+
+COPY --from=deps /app/node_modules ./node_modules
+
 COPY . .
 
-# Copy your environment file
-COPY .env .env
-
-# Expose backend port
 EXPOSE 5000
 
-# Start the server
-CMD ["npm", "start"]
-
+CMD ["npm","start"]

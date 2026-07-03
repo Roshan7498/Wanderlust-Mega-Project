@@ -1,26 +1,4 @@
 services:
-  mongodb:
-    container_name: mongodb
-    image: mongo:8
-    restart: unless-stopped
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongodb-data:/data/db
-    networks:
-      - wanderlust-network
-
-  redis:
-    container_name: redis
-    image: redis:7.0.5-alpine
-    restart: unless-stopped
-    expose:
-      - "6379"
-    volumes:
-      - redis-data:/data
-    networks:
-      - wanderlust-network
-
   backend:
     container_name: backend
     build:
@@ -32,7 +10,6 @@ services:
     ports:
       - "5000:5000"
     depends_on:
-      - mongodb
       - redis
     networks:
       - wanderlust-network
@@ -49,6 +26,17 @@ services:
       - "5173:5173"
     depends_on:
       - backend
+    networks:
+      - wanderlust-network
+
+  redis:
+    container_name: redis
+    image: redis:7.0.5-alpine
+    restart: unless-stopped
+    expose:
+      - "6379"
+    volumes:
+      - redis-data:/data
     networks:
       - wanderlust-network
 
@@ -71,7 +59,6 @@ services:
       - wanderlust-network
 
 volumes:
-  mongodb-data:
   redis-data:
   jenkins_home:
 
