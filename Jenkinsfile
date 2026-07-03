@@ -9,11 +9,10 @@ pipeline {
                 cleanWs()
             }
         }
-
+  
         stage('Checkout Source Code') {
             steps {
-                git branch: 'RoshansDevOps',
-                    url: 'https://github.com/Roshan7498/Wanderlust-Mega-Project.git'
+                checkout scm
             }
         }
 
