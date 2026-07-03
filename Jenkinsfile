@@ -1,6 +1,9 @@
 pipeline {
-
     agent any
+
+    options {
+        skipDefaultCheckout(true)
+    }
 
     stages {
 
@@ -9,7 +12,7 @@ pipeline {
                 cleanWs()
             }
         }
-  
+
         stage('Checkout Source Code') {
             steps {
                 checkout scm
@@ -19,17 +22,11 @@ pipeline {
         stage('Verify Checkout') {
             steps {
                 sh '''
-                    echo "Current Directory:"
                     pwd
-
-                    echo ""
-
-                    echo "Repository Contents:"
                     ls -la
                 '''
             }
         }
-
     }
 }
 
