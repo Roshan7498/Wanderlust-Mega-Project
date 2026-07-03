@@ -1,9 +1,8 @@
-version: "3.8"
-
 services:
   backend:
     container_name: backend
     build: ./backend
+    restart: unless-stopped
     env_file:
       - ./backend/.env.docker
     ports:
@@ -14,10 +13,13 @@ services:
   frontend:
     container_name: frontend
     build: ./frontend
+    restart: unless-stopped   
     env_file:
       - ./frontend/.env.docker
     ports:
       - "5173:5173"
+    depends_on:
+      - backend
 
   redis:
     container_name: redis
@@ -25,3 +27,25 @@ services:
     restart: unless-stopped
     expose:
       - "6379"
+    volumes:
+      - redis-data:/data
+
+  jenkins:
+    container_name: jenkins
+    build:
+      context: ./jenkins
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - backend
+      - frontend
+
+volumes:
+  redis-data:
+  jenkins_home:
