@@ -4,11 +4,21 @@ USER root
 
 # Install required tools
 RUN apt-get update && \
-    apt-get install -y docker.io git curl unzip && \
+    apt-get install -y \
+    docker.io \
+    git \
+    curl \
+    unzip \
+    ca-certificates \
+    gnupg && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Change docker group GID to match the host (109)
+   # Install Node.js 18.x
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+    apt-get install -y nodejs
+
+# Match Docker group GID with host
 RUN groupmod -g 109 docker && \
     usermod -aG docker jenkins
 
@@ -16,4 +26,3 @@ USER jenkins
 
 EXPOSE 8080
 EXPOSE 50000
-
