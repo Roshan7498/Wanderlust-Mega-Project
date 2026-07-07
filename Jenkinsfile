@@ -27,6 +27,21 @@ pipeline {
                 '''
             }
         }
+
+        stage('Backend - Install Dependencies') {
+    steps {
+        dir('backend') {
+            sh '''
+                echo "===== Backend ====="
+                node --version
+                npm --version
+
+                npm install
+            '''
+        }
+    }
+}
+
     }
 }
 
