@@ -42,6 +42,19 @@ pipeline {
     }
 }
 
+stage('Frontend - Install Dependencies') {
+    steps {
+        dir('frontend') {
+            sh '''
+                echo "===== Frontend ====="
+                node --version
+                npm --version
+
+                npm install
+            '''
+        }
+    }
+}
     }
 }
 
