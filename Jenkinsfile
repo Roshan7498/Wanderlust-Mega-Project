@@ -75,4 +75,3 @@ stage('Frontend - Build') {
 
   }
     }
-}
