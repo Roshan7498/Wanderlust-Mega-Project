@@ -56,15 +56,23 @@ pipeline {
             }
         }
 
-        stage('Frontend - Build') {
-            steps {
-                dir('frontend') {
-                    sh '''
-                        echo "===== Building Frontend ====="
-                        npm run build
-                    '''
-                }
-            }
+
+stage('Frontend - Build') {
+    steps {
+        dir('frontend') {
+            sh '''
+                echo "===== Building Frontend ====="
+                npm run build
+            '''
         }
+    }
+    post {
+        success {
+            archiveArtifacts artifacts: 'frontend/dist/**', fingerprint: true
+        }
+    }
+}      
+
+  }
     }
 }
