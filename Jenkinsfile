@@ -70,15 +70,20 @@ pipeline {
             }
         }
 
-        stage('SonarQube Quality Analysis') {
-            steps {
-                withSonarQubeEnv('SonarQube') {
-                    sh """
-                        ${tool 'SonarQubeScanner'}/bin/sonar-scanner
-                    """
-                }
-            }
+stage('SonarQube Quality Analysis') {
+    steps {
+        withSonarQubeEnv('SonarQube') {
+            sh """
+                ${tool 'SonarQubeScanner'}/bin/sonar-scanner \
+                -Dsonar.projectKey=wanderlust \
+                -Dsonar.projectName=wanderlust \
+                -Dsonar.sources=. \
+                -Dsonar.projectVersion=1.0 \
+                -Dsonar.token=$SONAR_AUTH_TOKEN
+            """
         }
+    }
+}
 
         stage('Quality Gate') {
             steps {
