@@ -72,6 +72,18 @@ stage('Frontend - Build') {
         }
     }
 }      
-
+stage('SonarQube Quality Analysis') {
+    steps {
+        withSonarQubeEnv('SonarQube') {
+            sh """
+                ${tool 'SonarQubeScanner'}/bin/sonar-scanner \
+                -Dsonar.projectKey=wanderlust \
+                -Dsonar.projectName=wanderlust \
+                -Dsonar.sources=. \
+                -Dsonar.projectVersion=1.0
+            """
+        }
+    }
+}
   }
     }
