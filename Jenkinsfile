@@ -71,19 +71,21 @@ stage('Frontend - Build') {
             archiveArtifacts artifacts: 'frontend/dist/**', fingerprint: true
         }
     }
-}      
+}  
 stage('SonarQube Quality Analysis') {
     steps {
         withSonarQubeEnv('SonarQube') {
             sh """
-                ${tool 'SonarQubeScanner'}/bin/sonar-scanner \
-                -Dsonar.projectKey=wanderlust \
-                -Dsonar.projectName=wanderlust \
-                -Dsonar.sources=. \
-                -Dsonar.projectVersion=1.0
+                ${tool 'SonarQubeScanner'}/bin/sonar-scanner
             """
         }
     }
-}
-  }
+stage('Quality Gate') {
+    steps {
+        timeout(time: 5, unit: 'MINUTES') {
+            waitForQualityGate abortPipeline: true
+        }
     }
+}}
+}
+}
