@@ -35,7 +35,6 @@ pipeline {
                         echo "===== Backend ====="
                         node --version
                         npm --version
-
                         npm install
                     '''
                 }
@@ -49,43 +48,44 @@ pipeline {
                         echo "===== Frontend ====="
                         node --version
                         npm --version
-
                         npm install
                     '''
                 }
             }
         }
 
+        stage('Frontend - Build') {
+            steps {
+                dir('frontend') {
+                    sh '''
+                        echo "===== Building Frontend ====="
+                        npm run build
+                    '''
+                }
+            }
+            post {
+                success {
+                    archiveArtifacts artifacts: 'frontend/dist/**', fingerprint: true
+                }
+            }
+        }
 
-stage('Frontend - Build') {
-    steps {
-        dir('frontend') {
-            sh '''
-                echo "===== Building Frontend ====="
-                npm run build
-            '''
+        stage('SonarQube Quality Analysis') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    sh """
+                        ${tool 'SonarQubeScanner'}/bin/sonar-scanner
+                    """
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
         }
     }
-    post {
-        success {
-            archiveArtifacts artifacts: 'frontend/dist/**', fingerprint: true
-        }
-    }
-}  
-stage('SonarQube Quality Analysis') {
-    steps {
-        withSonarQubeEnv('SonarQube') {
-            sh """
-                ${tool 'SonarQubeScanner'}/bin/sonar-scanner
-            """
-        }
-    }
-stage('Quality Gate') {
-    steps {
-        timeout(time: 5, unit: 'MINUTES') {
-            waitForQualityGate abortPipeline: true
-        }
-    }
-}}
-}
 }
