@@ -95,15 +95,19 @@ stage('SonarQube Quality Analysis') {
         }
 stage('OWASP Dependency Check') {
     steps {
-        dependencyCheck additionalArguments: '--scan . --format XML --format HTML',
-                        odcInstallation: 'DependencyCheck-OWASP'
+        withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD_API_KEY')]) {
+            dependencyCheck(
+                odcInstallation: 'DependencyCheck-OWASP',
+                additionalArguments: "--scan . --format XML --format HTML --nvdApiKey ${NVD_API_KEY}"
+            )
+        }
     }
     post {
         always {
             dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
         }
     }
-}
+}}
 
     }
 }
