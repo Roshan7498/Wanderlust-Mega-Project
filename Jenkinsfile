@@ -91,6 +91,19 @@ stage('SonarQube Quality Analysis') {
                     waitForQualityGate abortPipeline: true
                 }
             }
+
         }
+stage('OWASP Dependency Check') {
+    steps {
+        dependencyCheck additionalArguments: '--scan . --format XML --format HTML',
+                        odcInstallation: 'DependencyCheck-OWASP'
+    }
+    post {
+        always {
+            dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+        }
+    }
+}
+
     }
 }
