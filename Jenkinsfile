@@ -106,8 +106,7 @@ stage('OWASP Dependency Check') {
         always {
             dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
         }
-    }
-}}
+    }}
 
     }
 }
