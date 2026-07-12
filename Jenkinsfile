@@ -79,6 +79,7 @@ stage('SonarQube Quality Analysis') {
                 -Dsonar.projectName=wanderlust \
                 -Dsonar.sources=. \
                 -Dsonar.projectVersion=1.0 \
+                -Dsonar.javascript.node.maxspace=8192 \
                 -Dsonar.token=$SONAR_AUTH_TOKEN
             """
         }
