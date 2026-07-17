@@ -52,6 +52,22 @@ services:
     networks:
       - wanderlust-network
 
+  sonarqube:
+    container_name: sonarqube
+    image: sonarqube:9.9-community
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    environment:
+      SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: "true"
+      SONAR_WEB_JAVAOPTS: "-Xms256m -Xmx256m"
+      SONAR_CE_JAVAOPTS: "-Xms256m -Xmx256m"
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+    networks:
+      - wanderlust-network
+
   jenkins:
     container_name: jenkins
     build:
@@ -67,13 +83,30 @@ services:
     depends_on:
       - backend
       - frontend
+      - sonarqube
     networks:
       - wanderlust-network
 
 volumes:
   mongodb-data:
+    external: true
+    name: wanderlust-mega-project_mongodb-data
+
   redis-data:
+    external: true
+    name: wanderlust-mega-project_redis-data
+
   jenkins_home:
+    external: true
+    name: wanderlust-mega-project_jenkins_home
+
+  sonarqube_data:
+    external: true
+    name: sonarqube_data
+
+  sonarqube_extensions:
+    external: true
+    name: sonarqube_extensions
 
 networks:
   wanderlust-network:
