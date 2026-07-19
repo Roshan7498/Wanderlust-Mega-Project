@@ -70,21 +70,21 @@ pipeline {
             }
         }
 
-stage('SonarQube Quality Analysis') {
-    steps {
-        withSonarQubeEnv('SonarQube') {
-            sh """
-                ${tool 'SonarQubeScanner'}/bin/sonar-scanner \
-                -Dsonar.projectKey=wanderlust \
-                -Dsonar.projectName=wanderlust \
-                -Dsonar.sources=. \
-                -Dsonar.projectVersion=1.0 \
-                -Dsonar.javascript.node.maxspace=8192 \
-                -Dsonar.token=$SONAR_AUTH_TOKEN
-            """
+        stage('SonarQube Quality Analysis') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    sh """
+                        ${tool 'SonarQubeScanner'}/bin/sonar-scanner \
+                        -Dsonar.projectKey=wanderlust \
+                        -Dsonar.projectName=wanderlust \
+                        -Dsonar.sources=. \
+                        -Dsonar.projectVersion=1.0 \
+                        -Dsonar.javascript.node.maxspace=8192 \
+                        -Dsonar.token=$SONAR_AUTH_TOKEN
+                    """
+                }
+            }
         }
-    }
-}
 
         stage('Quality Gate') {
             steps {
@@ -92,46 +92,49 @@ stage('SonarQube Quality Analysis') {
                     waitForQualityGate abortPipeline: true
                 }
             }
-
         }
-stage('OWASP Dependency Check') {
-    steps {
-        withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD_API_KEY')]) {
-            dependencyCheck(
-                odcInstallation: 'DependencyCheck-OWASP',
-                additionalArguments: "--scan . --format XML --format HTML --nvdApiKey ${NVD_API_KEY}"
-            )
-        }
-    }
-    post {
-        always {
-            dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
-        }
-    }}
-stage('Build Backend Docker Image') {
-    steps {
-        sh '''
-            echo "===== Building Backend Docker Image ====="
-            docker build \
-              -t wanderlust-backend:${BUILD_NUMBER} \
-              -t wanderlust-backend:latest \
-              ./backend
-        '''
-    }
-}
 
-stage('Build Frontend Docker Image') {
-    steps {
-        sh '''
-            echo "===== Building Frontend Docker Image ====="
-            docker build \
-              -t wanderlust-frontend:${BUILD_NUMBER} \
-              -t wanderlust-frontend:latest \
-              ./frontend
-        '''
-    }
-}
+        stage('OWASP Dependency Check') {
+            steps {
+                withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD_API_KEY')]) {
+                    dependencyCheck(
+                        odcInstallation: 'DependencyCheck-OWASP',
+                        additionalArguments: "--scan . --format XML --format HTML --nvdApiKey ${NVD_API_KEY}"
+                    )
+                }
+            }
+            post {
+                always {
+                    dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+                }
+            }
+        }
 
+        stage('Build Backend Docker Image') {
+            steps {
+                sh '''
+                    echo "===== Building Backend Docker Image ====="
+
+                    docker build \
+                      -t roshan7498/wanderlust-backend:${BUILD_NUMBER} \
+                      -t roshan7498/wanderlust-backend:latest \
+                      ./backend
+                '''
+            }
+        }
+
+        stage('Build Frontend Docker Image') {
+            steps {
+                sh '''
+                    echo "===== Building Frontend Docker Image ====="
+
+                    docker build \
+                      -t roshan7498/wanderlust-frontend:${BUILD_NUMBER} \
+                      -t roshan7498/wanderlust-frontend:latest \
+                      ./frontend
+                '''
+            }
+        }
 
     }
 }
