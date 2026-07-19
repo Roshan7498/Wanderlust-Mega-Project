@@ -108,6 +108,30 @@ stage('OWASP Dependency Check') {
             dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
         }
     }}
+stage('Build Backend Docker Image') {
+    steps {
+        sh '''
+            echo "===== Building Backend Docker Image ====="
+            docker build \
+              -t wanderlust-backend:${BUILD_NUMBER} \
+              -t wanderlust-backend:latest \
+              ./backend
+        '''
+    }
+}
+
+stage('Build Frontend Docker Image') {
+    steps {
+        sh '''
+            echo "===== Building Frontend Docker Image ====="
+            docker build \
+              -t wanderlust-frontend:${BUILD_NUMBER} \
+              -t wanderlust-frontend:latest \
+              ./frontend
+        '''
+    }
+}
+
 
     }
 }
