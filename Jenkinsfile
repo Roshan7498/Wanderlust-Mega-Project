@@ -126,8 +126,8 @@ pipeline {
                     echo "===== Building Backend Docker Image ====="
 
                     docker build \
-                      -t roshan7498/wanderlust-backend:${BUILD_NUMBER} \
-                      -t roshan7498/wanderlust-backend:latest \
+                      -t roshan1611/wanderlust-backend:${BUILD_NUMBER} \
+                      -t roshan1611/wanderlust-backend:latest \
                       ./backend
                 '''
             }
@@ -139,12 +139,48 @@ pipeline {
                     echo "===== Building Frontend Docker Image ====="
 
                     docker build \
-                      -t roshan7498/wanderlust-frontend:${BUILD_NUMBER} \
-                      -t roshan7498/wanderlust-frontend:latest \
+                      -t roshan1611/wanderlust-frontend:${BUILD_NUMBER} \
+                      -t roshan1611/wanderlust-frontend:latest \
                       ./frontend
                 '''
             }
         }
+stage('Docker Hub Login') {
+    steps {
+        withCredentials([usernamePassword(
+            credentialsId: 'dockerhub',
+            usernameVariable: 'DOCKER_USERNAME',
+            passwordVariable: 'DOCKER_PASSWORD'
+        )]) {
+            sh '''
+                echo "===== Logging into Docker Hub ====="
+                echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+            '''
+        }
+    }
+}
+
+stage('Push Backend Docker Image') {
+    steps {
+        sh '''
+            echo "===== Pushing Backend Docker Image ====="
+
+            docker push roshan1611/wanderlust-backend:${BUILD_NUMBER}
+            docker push roshan1611/wanderlust-backend:latest
+        '''
+    }
+}
+
+stage('Push Frontend Docker Image') {
+    steps {
+        sh '''
+            echo "===== Pushing Frontend Docker Image ====="
+
+            docker push roshan1611/wanderlust-frontend:${BUILD_NUMBER}
+            docker push roshan1611/wanderlust-frontend:latest
+        '''
+    }
+}
 
     }
 }
