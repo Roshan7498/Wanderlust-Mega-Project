@@ -23,6 +23,7 @@ services:
 
   backend:
     container_name: backend
+    image: roshan7498/wanderlust-backend:${IMAGE_TAG:-latest}
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -39,6 +40,7 @@ services:
 
   frontend:
     container_name: frontend
+    image: roshan7498/wanderlust-frontend:${IMAGE_TAG:-latest}
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -70,6 +72,7 @@ services:
 
   jenkins:
     container_name: jenkins
+    image: roshan7498/wanderlust-jenkins:latest
     build:
       context: ./jenkins
       dockerfile: Dockerfile

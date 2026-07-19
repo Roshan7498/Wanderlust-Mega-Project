@@ -135,6 +135,14 @@ pipeline {
                 '''
             }
         }
+publishHTML([
+    allowMissing: false,
+    alwaysLinkToLastBuild: true,
+    keepAll: true,
+    reportDir: '.',
+    reportFiles: 'dependency-check-report.html',
+    reportName: 'OWASP Dependency Check Report'
+])
 
     }
 }
