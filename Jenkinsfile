@@ -103,9 +103,19 @@ pipeline {
                     )
                 }
             }
+
             post {
                 always {
                     dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+
+                    publishHTML(target: [
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: '.',
+                        reportFiles: 'dependency-check-report.html',
+                        reportName: 'OWASP Dependency Check Report'
+                    ])
                 }
             }
         }
@@ -135,14 +145,6 @@ pipeline {
                 '''
             }
         }
-publishHTML([
-    allowMissing: false,
-    alwaysLinkToLastBuild: true,
-    keepAll: true,
-    reportDir: '.',
-    reportFiles: 'dependency-check-report.html',
-    reportName: 'OWASP Dependency Check Report'
-])
 
     }
 }
