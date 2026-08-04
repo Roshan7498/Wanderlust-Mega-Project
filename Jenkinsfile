@@ -145,7 +145,7 @@ pipeline {
             }
         }
 
-        stage('Trivy Scan Backend') {
+	        stage('Trivy Scan Backend') {
             steps {
                 sh '''
                     echo "===== Scanning Backend Image with Trivy ====="
@@ -157,7 +157,8 @@ pipeline {
                       roshan1611/wanderlust-backend:latest
 
                     trivy image \
-                      --format html \
+                      --format template \
+                      --template "@/usr/local/share/trivy/templates/html.tpl" \
                       -o trivy-backend-report.html \
                       roshan1611/wanderlust-backend:latest
                 '''
@@ -188,7 +189,8 @@ pipeline {
                       roshan1611/wanderlust-frontend:latest
 
                     trivy image \
-                      --format html \
+                      --format template \
+                      --template "@/usr/local/share/trivy/templates/html.tpl" \
                       -o trivy-frontend-report.html \
                       roshan1611/wanderlust-frontend:latest
                 '''
@@ -218,8 +220,8 @@ pipeline {
                         echo "===== Logging into Docker Hub ====="
 
                         echo "$DOCKER_PASSWORD" | docker login \
-                          -u "$DOCKER_USERNAME" \
-                          --password-stdin
+                            -u "$DOCKER_USERNAME" \
+                            --password-stdin
                     '''
                 }
             }
