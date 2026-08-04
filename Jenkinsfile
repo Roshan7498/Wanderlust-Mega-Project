@@ -103,11 +103,9 @@ pipeline {
                     )
                 }
             }
-
             post {
                 always {
                     dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
-
                     publishHTML(target: [
                         allowMissing: false,
                         alwaysLinkToLastBuild: true,
@@ -124,7 +122,6 @@ pipeline {
             steps {
                 sh '''
                     echo "===== Building Backend Docker Image ====="
-
                     docker build \
                       -t roshan1611/wanderlust-backend:${BUILD_NUMBER} \
                       -t roshan1611/wanderlust-backend:latest \
@@ -137,7 +134,6 @@ pipeline {
             steps {
                 sh '''
                     echo "===== Building Frontend Docker Image ====="
-
                     docker build \
                       -t roshan1611/wanderlust-frontend:${BUILD_NUMBER} \
                       -t roshan1611/wanderlust-frontend:latest \
@@ -145,42 +141,84 @@ pipeline {
                 '''
             }
         }
-stage('Docker Hub Login') {
-    steps {
-        withCredentials([usernamePassword(
-            credentialsId: 'dockerhub',
-            usernameVariable: 'DOCKER_USERNAME',
-            passwordVariable: 'DOCKER_PASSWORD'
-        )]) {
-            sh '''
-                echo "===== Logging into Docker Hub ====="
-                echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-            '''
+
+        stage('Trivy Scan Backend') {
+            steps {
+                sh '''
+                    echo "===== Scanning Backend Image with Trivy ====="
+                    trivy image --exit-code 1 --severity HIGH,CRITICAL roshan1611/wanderlust-backend:latest
+                    trivy image --format html -o trivy-backend-report.html roshan1611/wanderlust-backend:latest
+                '''
+            }
+            post {
+                always {
+                    publishHTML(target: [
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: '.',
+                        reportFiles: 'trivy-backend-report.html',
+                        reportName: 'Trivy Backend Report'
+                    ])
+                }
+            }
         }
-    }
-}
 
-stage('Push Backend Docker Image') {
-    steps {
-        sh '''
-            echo "===== Pushing Backend Docker Image ====="
+        stage('Trivy Scan Frontend') {
+            steps {
+                sh '''
+                    echo "===== Scanning Frontend Image with Trivy ====="
+                    trivy image --exit-code 1 --severity HIGH,CRITICAL roshan1611/wanderlust-frontend:latest
+                    trivy image --format html -o trivy-frontend-report.html roshan1611/wanderlust-frontend:latest
+                '''
+            }
+            post {
+                always {
+                    publishHTML(target: [
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: '.',
+                        reportFiles: 'trivy-frontend-report.html',
+                        reportName: 'Trivy Frontend Report'
+                    ])
+                }
+            }
+        }
 
-            docker push roshan1611/wanderlust-backend:${BUILD_NUMBER}
-            docker push roshan1611/wanderlust-backend:latest
-        '''
-    }
-}
+        stage('Docker Hub Login') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub',
+                    usernameVariable: 'DOCKER_USERNAME',
+                    passwordVariable: 'DOCKER_PASSWORD'
+                )]) {
+                    sh '''
+                        echo "===== Logging into Docker Hub ====="
+                        echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+                    '''
+                }
+            }
+        }
 
-stage('Push Frontend Docker Image') {
-    steps {
-        sh '''
-            echo "===== Pushing Frontend Docker Image ====="
+        stage('Push Backend Docker Image') {
+            steps {
+                sh '''
+                    echo "===== Pushing Backend Docker Image ====="
+                    docker push roshan1611/wanderlust-backend:${BUILD_NUMBER}
+                    docker push roshan1611/wanderlust-backend:latest
+                '''
+            }
+        }
 
-            docker push roshan1611/wanderlust-frontend:${BUILD_NUMBER}
-            docker push roshan1611/wanderlust-frontend:latest
-        '''
-    }
-}
-
+        stage('Push Frontend Docker Image') {
+            steps {
+                sh '''
+                    echo "===== Pushing Frontend Docker Image ====="
+                    docker push roshan1611/wanderlust-frontend:${BUILD_NUMBER}
+                    docker push roshan1611/wanderlust-frontend:latest
+                '''
+            }
+        }
     }
 }
