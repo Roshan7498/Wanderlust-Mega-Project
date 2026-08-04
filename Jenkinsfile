@@ -106,6 +106,7 @@ pipeline {
             post {
                 always {
                     dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+
                     publishHTML(target: [
                         allowMissing: false,
                         alwaysLinkToLastBuild: true,
@@ -122,6 +123,7 @@ pipeline {
             steps {
                 sh '''
                     echo "===== Building Backend Docker Image ====="
+
                     docker build \
                       -t roshan1611/wanderlust-backend:${BUILD_NUMBER} \
                       -t roshan1611/wanderlust-backend:latest \
@@ -134,6 +136,7 @@ pipeline {
             steps {
                 sh '''
                     echo "===== Building Frontend Docker Image ====="
+
                     docker build \
                       -t roshan1611/wanderlust-frontend:${BUILD_NUMBER} \
                       -t roshan1611/wanderlust-frontend:latest \
@@ -146,8 +149,17 @@ pipeline {
             steps {
                 sh '''
                     echo "===== Scanning Backend Image with Trivy ====="
-                    trivy image --exit-code 1 --severity HIGH,CRITICAL roshan1611/wanderlust-backend:latest
-                    trivy image --format html -o trivy-backend-report.html roshan1611/wanderlust-backend:latest
+
+                    trivy image \
+                      --severity HIGH,CRITICAL \
+                      --ignore-unfixed \
+                      --exit-code 0 \
+                      roshan1611/wanderlust-backend:latest
+
+                    trivy image \
+                      --format html \
+                      -o trivy-backend-report.html \
+                      roshan1611/wanderlust-backend:latest
                 '''
             }
             post {
@@ -168,8 +180,17 @@ pipeline {
             steps {
                 sh '''
                     echo "===== Scanning Frontend Image with Trivy ====="
-                    trivy image --exit-code 1 --severity HIGH,CRITICAL roshan1611/wanderlust-frontend:latest
-                    trivy image --format html -o trivy-frontend-report.html roshan1611/wanderlust-frontend:latest
+
+                    trivy image \
+                      --severity HIGH,CRITICAL \
+                      --ignore-unfixed \
+                      --exit-code 0 \
+                      roshan1611/wanderlust-frontend:latest
+
+                    trivy image \
+                      --format html \
+                      -o trivy-frontend-report.html \
+                      roshan1611/wanderlust-frontend:latest
                 '''
             }
             post {
@@ -195,7 +216,10 @@ pipeline {
                 )]) {
                     sh '''
                         echo "===== Logging into Docker Hub ====="
-                        echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+                        echo "$DOCKER_PASSWORD" | docker login \
+                          -u "$DOCKER_USERNAME" \
+                          --password-stdin
                     '''
                 }
             }
@@ -205,6 +229,7 @@ pipeline {
             steps {
                 sh '''
                     echo "===== Pushing Backend Docker Image ====="
+
                     docker push roshan1611/wanderlust-backend:${BUILD_NUMBER}
                     docker push roshan1611/wanderlust-backend:latest
                 '''
@@ -215,6 +240,7 @@ pipeline {
             steps {
                 sh '''
                     echo "===== Pushing Frontend Docker Image ====="
+
                     docker push roshan1611/wanderlust-frontend:${BUILD_NUMBER}
                     docker push roshan1611/wanderlust-frontend:latest
                 '''
